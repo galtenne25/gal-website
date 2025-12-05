@@ -112,6 +112,65 @@ const styles = {
     color: 'rgba(255,255,255,0.65)',
     fontSize: 13
   },
+  contact: {
+    padding: '60px 20px',
+    textAlign: 'center'
+  },
+  contactTitle: {
+    fontSize: 'clamp(24px, 5vw, 42px)',
+    fontWeight: 800,
+    marginBottom: 12,
+    color: '#fff'
+  },
+  contactSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255,255,255,0.8)',
+    marginBottom: 32,
+    maxWidth: 600,
+    margin: '0 auto 32px'
+  },
+  form: {
+    maxWidth: 500,
+    margin: '0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 16
+  },
+  input: {
+    padding: '12px 16px',
+    fontSize: 15,
+    borderRadius: 8,
+    border: '1px solid rgba(255,255,255,0.15)',
+    background: 'rgba(255,255,255,0.05)',
+    color: '#fff',
+    fontFamily: 'inherit',
+    transition: 'all 200ms ease'
+  },
+  submitBtn: (hover) => ({
+    padding: '12px 24px',
+    fontSize: 16,
+    fontWeight: 600,
+    borderRadius: 8,
+    border: 'none',
+    cursor: 'pointer',
+    color: '#fff',
+    background: hover ? 'linear-gradient(90deg,#10b981,#34d399)' : 'linear-gradient(90deg,#059669,#10b981)',
+    boxShadow: hover ? '0 10px 30px rgba(16,185,129,0.2)' : '0 8px 20px rgba(5,150,105,0.15)',
+    transition: 'transform 160ms ease, box-shadow 160ms ease',
+    transform: hover ? 'translateY(-2px)' : 'translateY(0)'
+  }),
+  successMessage: {
+    padding: 24,
+    borderRadius: 8,
+    background: 'rgba(16,185,129,0.1)',
+    border: '1px solid rgba(16,185,129,0.3)',
+    color: '#10b981',
+    fontSize: 16,
+    fontWeight: 600,
+    textAlign: 'center',
+    maxWidth: 500,
+    margin: '0 auto'
+  },
   // Responsive helper (will be applied inline via media query emulation)
   mobileCards: {
     gridTemplateColumns: '1fr'
@@ -179,6 +238,69 @@ function Cards() {
   )
 }
 
+function Contact() {
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (name.trim() && email.trim()) {
+      setSubmitted(true)
+      setName('')
+      setEmail('')
+    }
+  }
+
+  return (
+    <section id="contact" style={styles.contact}>
+      <h2 style={styles.contactTitle}>Get In Touch</h2>
+      <p style={styles.contactSubtitle}>Have a project idea or just want to say hello? I'd love to hear from you.</p>
+
+      {!submitted ? (
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <input
+            type="text"
+            placeholder="Your Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            style={styles.input}
+            required
+          />
+          <input
+            type="email"
+            placeholder="Your Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            style={styles.input}
+            required
+          />
+          <SubmitButton />
+        </form>
+      ) : (
+        <div style={styles.successMessage}>
+          ✓ Thanks for reaching out, {name}!
+        </div>
+      )}
+    </section>
+  )
+}
+
+function SubmitButton() {
+  const [hover, setHover] = useState(false)
+
+  return (
+    <button
+      type="submit"
+      style={styles.submitBtn(hover)}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      Send Message
+    </button>
+  )
+}
+
 function Footer() {
   return (
     <footer style={styles.footer}>
@@ -202,6 +324,7 @@ export default function App() {
         <Navbar />
         <Hero />
         <Cards />
+        <Contact />
       </div>
       <div style={{width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 20px'}}>
         <Footer />

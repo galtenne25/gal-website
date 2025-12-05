@@ -1,4 +1,5 @@
-import React, {useState} from 'react'
+import React, {useState, useRef} from 'react'
+import emailjs from '@emailjs/browser'
 
 const styles = {
   app: {
@@ -239,16 +240,34 @@ function Cards() {
 }
 
 function Contact() {
+  const form = useRef()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = (e) => {
     e.preventDefault()
     if (name.trim() && email.trim()) {
-      setSubmitted(true)
-      setName('')
-      setEmail('')
+      setLoading(true)
+      
+      emailjs.sendForm(
+        'YOUR_SERVICE_ID_HERE',
+        'YOUR_TEMPLATE_ID_HERE',
+        form.current,
+        'YOUR_PUBLIC_KEY_HERE'
+      )
+        .then((result) => {
+          console.log('Email sent successfully:', result.text)
+          setSubmitted(true)
+          setName('')
+          setEmail('')
+          setLoading(false)
+        })
+        .catch((error) => {
+          console.error('Email send failed:', error)
+          setLoading(false)
+        })
     }
   }
 
@@ -258,9 +277,10 @@ function Contact() {
       <p style={styles.contactSubtitle}>Have a project idea or just want to say hello? I'd love to hear from you.</p>
 
       {!submitted ? (
-        <form onSubmit={handleSubmit} style={styles.form}>
+        <form ref={form} onSubmit={handleSubmit} style={styles.form}>
           <input
             type="text"
+            name="user_name"
             placeholder="Your Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -269,13 +289,14 @@ function Contact() {
           />
           <input
             type="email"
+            name="user_email"
             placeholder="Your Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={styles.input}
             required
           />
-          <SubmitButton />
+          <SubmitButton isLoading={loading} />
         </form>
       ) : (
         <div style={styles.successMessage}>
@@ -286,17 +307,18 @@ function Contact() {
   )
 }
 
-function SubmitButton() {
+function SubmitButton({ isLoading }) {
   const [hover, setHover] = useState(false)
 
   return (
     <button
       type="submit"
-      style={styles.submitBtn(hover)}
+      disabled={isLoading}
+      style={{...styles.submitBtn(hover && !isLoading), opacity: isLoading ? 0.6 : 1, cursor: isLoading ? 'not-allowed' : 'pointer'}}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      Send Message
+      {isLoading ? 'Sending...' : 'Send Message'}
     </button>
   )
 }
